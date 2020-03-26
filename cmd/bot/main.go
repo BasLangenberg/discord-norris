@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -48,7 +49,7 @@ func responseWithQuote(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if m.Content == "!chuck" {
+	if strings.Contains(strings.ToLower(m.Content), "!chuck") {
 		quote, err := icndb.GetRandomQuote()
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Can't get a quote, please message @commissarbas who is supposed to maintain this bot")
