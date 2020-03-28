@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/BasLangenberg/discord-norris/internal/giphy"
 	"github.com/BasLangenberg/discord-norris/internal/icndb"
 	"github.com/bwmarrin/discordgo"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 )
 
 const (
@@ -50,10 +52,27 @@ func responseWithQuote(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.Contains(strings.ToLower(m.Content), "!chuck") {
-		quote, err := icndb.GetRandomQuote()
-		if err != nil {
+		quote, qerr := icndb.GetRandomQuote()
+		gif, gerr := giphy.GetRandomChuckGifDownSizedLarge()
+		if gerr != nil || qerr != nil {
 			s.ChannelMessageSend(m.ChannelID, "Can't get a quote, please message @commissarbas who is supposed to maintain this bot")
 		}
-		s.ChannelMessageSend(m.ChannelID, quote)
+
+		embed := &discordgo.MessageEmbed{
+			Author:      &discordgo.MessageEmbedAuthor{},
+			Color:       0x00ff00, // Green
+			Description: quote,
+			Image: &discordgo.MessageEmbedImage{
+				URL: gif,
+			},
+			Thumbnail: &discordgo.MessageEmbedThumbnail{
+				URL: gif,
+			},
+			Timestamp: time.Now().Format(time.RFC3339), // Discord wants ISO8601; RFC3339 is an extension of ISO8601 and should be completely compatible.
+			Title:     "Chuck Norris Quote",
+		}
+
+		s.ChannelMessageSendEmbed(m.ChannelID, embed)
+
 	}
 }
