@@ -65,9 +65,6 @@ func responseWithQuote(s *discordgo.Session, m *discordgo.MessageCreate) {
 			Image: &discordgo.MessageEmbedImage{
 				URL: gif,
 			},
-			Thumbnail: &discordgo.MessageEmbedThumbnail{
-				URL: gif,
-			},
 			Timestamp: time.Now().Format(time.RFC3339), // Discord wants ISO8601; RFC3339 is an extension of ISO8601 and should be completely compatible.
 			Title:     "Chuck Norris Quote",
 		}
