@@ -69,7 +69,11 @@ func responseWithQuote(s *discordgo.Session, m *discordgo.MessageCreate) {
 			Title:     "Chuck Norris Quote",
 		}
 
-		s.ChannelMessageSendEmbed(m.ChannelID, embed)
+		_, err := s.ChannelMessageSendEmbed(m.ChannelID, embed)
+
+		if err != nil {
+			log.Printf("error publishing message: %v", err)
+		}
 
 	}
 }

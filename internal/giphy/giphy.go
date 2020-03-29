@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"time"
 )
 
 func GetRandomChuckGifDownSizedLarge() (string, error) {
@@ -16,7 +17,7 @@ func GetRandomChuckGifDownSizedLarge() (string, error) {
 		return "", fmt.Errorf("unable to retrieve gif from giphy: %v", err)
 	}
 
-
+	rand.Seed(time.Now().UnixNano())
 	i := rand.Intn(len(gif.Gif))
 	return gif.Gif[i].Images.DownsizedLarge.URL, nil
 }
