@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/BasLangenberg/discord-norris/internal/giphy"
 	"github.com/BasLangenberg/discord-norris/internal/icndb"
+	mcsrvstat_us "github.com/BasLangenberg/discord-norris/internal/mcsrvstat-us"
 	"github.com/bwmarrin/discordgo"
 	"log"
 	"os"
@@ -34,6 +35,8 @@ func main(){
 		log.Printf("unable to start bot: %v", err)
 	}
 
+	go checkForMySon(dg)
+
 	log.Println("Bot initialized and running, press CTRL+C to stop")
 
 	for {
@@ -54,10 +57,12 @@ func responseWithQuote(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if strings.Contains(strings.ToLower(m.Content), "!chuck") {
 		quote, qerr := icndb.GetRandomQuote()
 		gif, gerr := giphy.GetRandomChuckGifDownSizedLarge()
-		if gerr != nil || qerr != nil {
+		if qerr != nil {
 			s.ChannelMessageSend(m.ChannelID, "Can't get a quote, please message @commissarbas who is supposed to maintain this bot")
 		}
-
+		if gerr != nil {
+			s.ChannelMessageSend(m.ChannelID, "Can't get a gif, please message @commissarbas who is supposed to maintain this bot")
+		}
 		embed := &discordgo.MessageEmbed{
 			Author:      &discordgo.MessageEmbedAuthor{},
 			Color:       0x00ff00, // Green
@@ -76,4 +81,47 @@ func responseWithQuote(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 	}
+}
+
+func checkForMySon(s *discordgo.Session) {
+	var cache []string
+	for {
+		time.Sleep(1 * time.Minute)
+		log.Println("Checking for specific username")
+
+		online, err := mcsrvstat_us.GetOnlinePlayers()
+
+		if err != nil {
+			log.Printf("Unable to get online playes: %v\n", err)
+		}
+
+		// Check
+		for _, gamer := range online {
+			if strings.Contains(gamer, "Sebe") {
+				// Discord meuk
+				if !isStringInStringSlice(cache, gamer) {
+					s.ChannelMessageSend("692063079483047989", "Sébe just came online")
+				}
+			}
+			if strings.Contains(gamer, "Bas") {
+				if !isStringInStringSlice(cache, gamer) {
+					s.ChannelMessageSend("692063079483047989", "Bas just came online")
+				}
+			}
+		}
+
+		cache = online
+		log.Printf("online users: %v", cache)
+
+	}
+}
+
+func isStringInStringSlice(cache []string, gamer string) bool {
+	for _, user := range cache {
+		if user == gamer {
+			return true
+		}
+	}
+
+	return false
 }
